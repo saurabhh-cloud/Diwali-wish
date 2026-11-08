@@ -1,5 +1,9 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Roshan Diwali</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Mukta:wght@500;700&family=Poppins:wght@400;500;600&family=Yatra+One&display=swap" rel="stylesheet">
@@ -22,6 +26,7 @@
   color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
   background: var(--red-deep);
@@ -152,10 +157,27 @@ body.ready .strip { opacity: 1; }
 #fb { display: none; font-size: .8rem; }
 #fb.on { display: block; }
 
+.share-btn { padding-left: 46px; padding-right: 46px; }
+
+/* share sheet */
+.sheet { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+.sheet-bg { position: absolute; inset: 0; background: rgba(10, 2, 14, .6); animation: sceneIn .3s ease both; }
+.sheet-box { position: relative; width: 100%; max-width: 440px; background: #fff8ea; color: #3a1a0a; border-radius: 22px 22px 0 0; padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 16px; align-items: stretch; animation: sheetUp .35s cubic-bezier(.2, .9, .3, 1) both; box-shadow: 0 -10px 40px rgba(0, 0, 0, .4); }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+.sh-prev { display: flex; gap: 12px; align-items: center; text-align: left; padding-bottom: 14px; border-bottom: 1px solid #ecd9b8; }
+.sh-lamp { font-size: 1.7rem; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 12px; background: #ffe2a0; flex-shrink: 0; }
+.sh-txt { display: flex; flex-direction: column; min-width: 0; }
+.sh-txt strong { font-size: .95rem; font-weight: 600; overflow-wrap: anywhere; }
+.sh-txt small { font-size: .75rem; color: #7a5a44; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sh-row { display: flex; flex-wrap: wrap; gap: 14px 8px; justify-content: center; }
+.sh-app { width: 74px; display: flex; flex-direction: column; align-items: center; gap: 6px; font: 500 .75rem var(--f-body); color: #3a1a0a; text-decoration: none; background: none; border: 0; padding: 0; cursor: pointer; }
+.sh-ic { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 1.4rem; }
+.sheet .pill { font-size: .8rem; padding: 10px 14px; text-align: left; }
+
 /* lanterns and toast */
 .lantern { position: fixed; z-index: 30; width: 96px; padding: 18px 10px; text-align: center; font: 600 .82rem/1.25 var(--f-body); color: #7a3a10; background: radial-gradient(circle at 50% 40%, #ffeab0, #ffb347 70%, #f08a24); border-radius: 20px; box-shadow: 0 0 42px 14px rgba(255, 170, 60, .65); overflow-wrap: anywhere; animation: floatUp 7s ease-in forwards; pointer-events: none; }
 @keyframes floatUp { 0% { transform: translate(-50%, 0) rotate(-4deg) scale(.6); opacity: 0; } 8% { opacity: 1; } 50% { transform: translate(calc(-50% + var(--dx)), -48vh) rotate(5deg) scale(1); } 100% { transform: translate(calc(-50% - var(--dx)), -112vh) rotate(-4deg) scale(1.05); opacity: 0; } }
-#toast { position: fixed; z-index: 35; left: 50%; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: rgba(30, 8, 12, .88); color: #fff; padding: 11px 22px; border-radius: 999px; font-size: .9rem; opacity: 0; transition: .35s; pointer-events: none; white-space: nowrap; }
+#toast { position: fixed; z-index: 60; left: 50%; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: rgba(30, 8, 12, .88); color: #fff; padding: 11px 22px; border-radius: 999px; font-size: .9rem; opacity: 0; transition: .35s; pointer-events: none; white-space: nowrap; }
 #toast.on { opacity: 1; transform: translate(-50%, 0); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -164,6 +186,8 @@ body.ready .strip { opacity: 1; }
   .niche.lit .flame { animation: none; }
 }
 </style>
+</head>
+<body>
 
 <div class="bg bg-red"></div>
 <div class="bg bg-amber"></div>
@@ -176,6 +200,22 @@ body.ready .strip { opacity: 1; }
 <div class="curtain r" id="cu-r" aria-hidden="true"></div>
 <button id="snd" type="button" aria-label="Sound on" aria-pressed="false">🔇</button>
 <div id="toast" role="status"></div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-bg" id="sheetBg"></div>
+  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <div class="sh-prev"><span class="sh-lamp" aria-hidden="true">🪔</span><div class="sh-txt"><strong id="shTitle"></strong><small id="shUrl"></small></div></div>
+    <div class="sh-row">
+      <a class="sh-app" id="shWa" href="#" target="_blank" rel="noopener"><span class="sh-ic" style="background:#25d366">💬</span>WhatsApp</a>
+      <a class="sh-app" id="shTg" href="#" target="_blank" rel="noopener"><span class="sh-ic" style="background:#2a9ad8">✈️</span>Telegram</a>
+      <a class="sh-app" id="shMail" href="#" target="_blank" rel="noopener"><span class="sh-ic" style="background:#e0483b">✉️</span>Email</a>
+      <a class="sh-app" id="shSms" href="#" target="_blank" rel="noopener"><span class="sh-ic" style="background:#2fa36b">📱</span>SMS</a>
+      <button class="sh-app" id="shCopy" type="button"><span class="sh-ic" style="background:#6b5b95">📋</span>Copy link</button>
+    </div>
+    <input class="pill" id="shLink" type="text" readonly aria-label="Card link">
+    <button class="red-btn" id="shClose" type="button">Close</button>
+  </div>
+</div>
 
 <main>
   <section class="scene" id="s-splash">
@@ -249,10 +289,9 @@ body.ready .strip { opacity: 1; }
         <input class="pill" id="wish" type="text" maxlength="28" autocomplete="off" placeholder="Write a wish for the sky" aria-label="Wish for the sky">
         <div class="btnrow">
           <button class="red-btn" id="lanternBtn" type="button">Release lantern</button>
-          <button class="red-btn" id="shareBtn" type="button">Share</button>
+          <button class="red-btn" id="moreBtn" type="button">More fireworks</button>
         </div>
-        <button class="red-btn" id="moreBtn" type="button">More fireworks</button>
-        <input class="pill" id="fb" type="text" readonly aria-label="Card link">
+        <button class="red-btn share-btn" id="shareBtn" type="button">Share</button>
         <p class="foot">Made with ✨ by saurbhh · Diwali 2026</p>
       </div>
     </div>
@@ -483,9 +522,29 @@ body.ready .strip { opacity: 1; }
       try { await navigator.share({ title: "A Diwali light for you", text: text, url: url }); return; }
       catch (e) { if (e && e.name === "AbortError") return; }
     }
-    var fb = $("fb"); fb.value = url;
-    function manual() { fb.classList.add("on"); fb.focus(); fb.select(); toast("Copy the link below"); }
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { toast("Link copied"); }, manual); else manual();
+    openSheet(url, text);
+  });
+
+  /* fallback share panel */
+  var sheetUrl = "";
+  function openSheet(url, text) {
+    sheetUrl = url;
+    var e = encodeURIComponent;
+    $("shTitle").textContent = text; $("shUrl").textContent = url; $("shLink").value = url;
+    $("shWa").href = "https://wa.me/?text=" + e(text + " " + url);
+    $("shTg").href = "https://t.me/share/url?url=" + e(url) + "&text=" + e(text);
+    $("shMail").href = "mailto:?subject=" + e("A Diwali light for you") + "&body=" + e(text + "\n\n" + url);
+    $("shSms").href = "sms:?&body=" + e(text + " " + url);
+    $("sheet").hidden = false; $("shClose").focus();
+  }
+  function closeSheet() { $("sheet").hidden = true; }
+  $("shClose").addEventListener("click", closeSheet);
+  $("sheetBg").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+  $("shCopy").addEventListener("click", function () {
+    var inp = $("shLink");
+    function manual() { inp.focus(); inp.select(); toast("Press and hold the link to copy"); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(sheetUrl).then(function () { toast("Link copied"); }, manual); else manual();
   });
 
   resize(); requestAnimationFrame(loop);
@@ -494,3 +553,6 @@ body.ready .strip { opacity: 1; }
   setTimeout(function () { $("cu-l").remove(); $("cu-r").remove(); }, 2400);
 })();
 </script>
+
+</body>
+</html>
