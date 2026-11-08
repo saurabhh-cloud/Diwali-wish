@@ -1,0 +1,496 @@
+<title>Roshan Diwali</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Mukta:wght@500;700&family=Poppins:wght@400;500;600&family=Yatra+One&display=swap" rel="stylesheet">
+<style>
+/* Layout: full-screen phone stage with bulb strips down both edges. Four scenes in order: curtain splash, diya in an arch niche, striped-stick rocket, then one orange card (name form, then envelope, letter and actions) over a night sky of fireworks. */
+:root {
+  --red-deep: #8d1209;
+  --red: #c4201a;
+  --ember: #f26a2b;
+  --gold: #ffc933;
+  --gold-deep: #d98a2b;
+  --cream: #fff6d8;
+  --maroon: #9b2a14;
+  --ink: #5a1d0c;
+  --sky: #12061f;
+  --pink: #ff3d78;
+  --f-display: "Yatra One", "Baloo 2", "Mukta", serif;
+  --f-chunky: "Baloo 2", "Mukta", system-ui, sans-serif;
+  --f-body: "Poppins", "Mukta", system-ui, sans-serif;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--red-deep);
+  color: var(--cream);
+  font-family: var(--f-body);
+  font-size: 16px;
+  padding-left: max(36px, env(safe-area-inset-left, 0px));
+  padding-right: max(36px, env(safe-area-inset-right, 0px));
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font-family: inherit; }
+:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+/* backgrounds, one per mood */
+.bg { position: fixed; inset: 0; opacity: 0; transition: opacity 1s ease; z-index: 0; }
+.bg-red { background: radial-gradient(120% 75% at 50% 28%, #ff5a1f 0%, #d1301a 46%, var(--red-deep) 100%); }
+.bg-amber { background: radial-gradient(90% 60% at 50% 40%, #d2a366 0%, #a67845 70%, #7d5430 100%); }
+.bg-sky { background: radial-gradient(110% 70% at 50% 105%, #2b0d46 0%, var(--sky) 65%), var(--sky);
+}
+.bg-sky::after { content: ""; position: absolute; inset: 0; background: repeating-conic-gradient(from 0deg at 50% 62%, rgba(255, 255, 255, .045) 0 2.5deg, transparent 2.5deg 9deg); }
+body[data-bg="red"] .bg-red, body[data-bg="amber"] .bg-amber, body[data-bg="sky"] .bg-sky { opacity: 1; }
+canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#fxBack { z-index: 1; }
+#fxTop { z-index: 20; }
+
+/* bulb strips */
+.strip { position: fixed; top: 0; bottom: 0; width: 18px; z-index: 15; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; padding-block: 10px; pointer-events: none; opacity: 0; transition: opacity 1.2s ease 1.2s; }
+body.ready .strip { opacity: 1; }
+.strip.l { left: max(7px, env(safe-area-inset-left, 0px)); }
+.strip.r { right: max(7px, env(safe-area-inset-right, 0px)); }
+.strip i { width: 14px; height: 14px; border-radius: 50%; display: block; animation: chase 1.1s ease-in-out infinite alternate; }
+.strip.l i { background: radial-gradient(circle at 35% 30%, #fff8cf, #ffc82e 48%, #e58a00); box-shadow: 0 0 10px 2px rgba(255, 200, 50, .75); }
+.strip.r i { background: radial-gradient(circle at 35% 30%, #ffd2df, #ff4f84 48%, #d11f5a); box-shadow: 0 0 10px 2px rgba(255, 70, 130, .7); }
+@keyframes chase { from { opacity: .28; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
+
+/* opening curtains made of bulbs */
+.curtain { position: fixed; top: 0; bottom: 0; width: 50%; z-index: 40; pointer-events: none; overflow: hidden;
+  background: radial-gradient(circle, #ffd24a 0 30%, #ff9a1f 35%, #c24a0a 47%, transparent 53%) 0 0 / 26px 26px, #7a0f07;
+  animation: part 1.7s cubic-bezier(.7, 0, .3, 1) .5s forwards; }
+.curtain.l { left: 0; box-shadow: 8px 0 30px rgba(0, 0, 0, .5); }
+.curtain.r { right: 0; box-shadow: -8px 0 30px rgba(0, 0, 0, .5); }
+@keyframes part { to { width: 0; } }
+
+/* scenes */
+.scene { position: fixed; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; overflow-y: auto; overflow-x: hidden;
+  padding-top: calc(28px + env(safe-area-inset-top, 0px)); padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(36px, env(safe-area-inset-left, 0px)); padding-right: max(36px, env(safe-area-inset-right, 0px)); }
+.scene:not([hidden]) { animation: sceneIn .7s ease both; }
+@keyframes sceneIn { from { opacity: 0; } to { opacity: 1; } }
+
+#snd { position: fixed; z-index: 30; top: calc(12px + env(safe-area-inset-top, 0px)); right: max(40px, calc(env(safe-area-inset-right, 0px) + 34px)); width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(40, 10, 20, .45); color: #fff; font-size: 1.15rem; cursor: pointer; backdrop-filter: blur(4px); }
+
+/* splash */
+.shubh { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(3.4rem, 19vw, 5.6rem); line-height: .98; color: #ffcf6b;
+  text-shadow: 0 1px 0 #e0902f, 0 2px 0 #c0651f, 0 3px 0 #9b3b14, 0 4px 0 #78240d, 0 5px 0 #521507, 0 10px 14px rgba(0, 0, 0, .45), 0 0 36px rgba(255, 170, 60, .5); }
+#s-splash { justify-content: flex-start; padding-top: calc(7vh + env(safe-area-inset-top, 0px)); gap: 6vh; cursor: pointer; }
+.plate { font-family: var(--f-chunky); font-weight: 800; font-size: clamp(2.5rem, 14vw, 3.7rem); line-height: .96; color: #ee3f7e; text-shadow: 3px 3px 0 #2b3f9e; background: var(--gold); border: 5px solid var(--ember); border-radius: 36px; padding: 18px 34px 22px; outline: 5px dotted #fff; outline-offset: 7px; transform: rotate(-1deg); box-shadow: 0 0 44px rgba(255, 200, 50, .45); animation: pop .9s cubic-bezier(.2, 1.4, .4, 1) 1.9s both; }
+@keyframes pop { from { opacity: 0; transform: scale(.6) rotate(-6deg); } to { opacity: 1; transform: rotate(-1deg); } }
+.tag { margin: 0; font-family: var(--f-chunky); font-weight: 700; font-size: 1.25rem; color: #ffb347; animation: fadeUp .8s ease 2.5s both; }
+#s-splash .start { margin-top: auto; animation: fadeUp .8s ease 3s both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes breathe { 50% { opacity: .45; } }
+#s-splash .shubh { animation: fadeUp 1s ease 1.4s both; }
+
+/* diya niche */
+.niche { position: relative; width: min(100%, 330px); height: min(60vh, 500px); border-radius: 999px 999px 20px 20px; border: 13px solid var(--maroon); box-shadow: 0 0 0 5px #f0b63a, 0 18px 40px rgba(60, 25, 5, .5); background: linear-gradient(180deg, #e9b863, #d5923c 70%, #c27c2b); overflow: hidden; cursor: pointer; flex-shrink: 0; }
+.niche .rays { position: absolute; inset: 0; background: repeating-conic-gradient(from 0deg at 50% 24%, rgba(255, 245, 200, .16) 0 2deg, transparent 2deg 8deg); }
+.niche .warm { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; background: radial-gradient(circle at 50% 80%, rgba(255, 240, 170, .95), rgba(255, 190, 80, .4) 42%, transparent 70%); }
+.niche.lit .warm { opacity: 1; }
+.niche .flower { position: absolute; top: 18%; left: 50%; width: 22%; transform: translateX(-50%); opacity: .75; }
+.diya { position: absolute; left: 50%; bottom: 6%; width: 88%; transform: translateX(-50%); }
+.diya svg { width: 100%; display: block; overflow: visible; }
+.diya .flame { opacity: 0; transform: scale(.1); transform-origin: 100px 16px; transition: opacity .6s, transform .8s cubic-bezier(.3, 1.6, .5, 1); }
+.niche.lit .flame { opacity: 1; transform: scale(1); animation: flick 1.5s ease-in-out .9s infinite alternate; }
+@keyframes flick { 0% { transform: scale(1) skewX(0); } 45% { transform: scale(1.05, .95) skewX(2.5deg); } 100% { transform: scale(.96, 1.05) skewX(-2.5deg); } }
+.rose { position: absolute; bottom: 14%; font-size: 2rem; line-height: 1; }
+.rose.a { left: 3%; transform: rotate(-25deg); }
+.rose.b { right: 3%; transform: rotate(25deg); }
+.cap { margin: 0; font-size: 1.15rem; font-weight: 500; color: #fff; text-shadow: 0 2px 6px rgba(60, 20, 0, .5); min-height: 1.6em; }
+.cap.hi { font-family: var(--f-chunky); font-weight: 700; font-size: 1.4rem; }
+.gold-btn { font: 600 1.15rem var(--f-body); color: #6a1f0a; border: 0; border-radius: 999px; padding: 16px 38px; cursor: pointer; background: linear-gradient(#ffd96b, #ffb52e); box-shadow: 0 5px 0 #b3721a, 0 12px 26px rgba(255, 170, 40, .5); animation: fadeUp .7s ease both; }
+.gold-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b3721a, 0 6px 14px rgba(255, 170, 40, .5); }
+
+/* rocket */
+#s-rocket { justify-content: flex-start; padding-top: calc(11vh + env(safe-area-inset-top, 0px)); }
+#s-rocket .cap { color: #ead7ff; }
+.rocket { position: fixed; z-index: 6; left: 50%; bottom: calc(5vh + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 0); width: 74px; border: 0; padding: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.rocket .nose { width: 62px; height: 50px; background: linear-gradient(90deg, #e22b22, #b3150f); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.rocket .body { width: 56px; height: 90px; border-radius: 8px; border: 3px solid #f15a4d; background: radial-gradient(circle, #ffc933 0 2.6px, transparent 3px) 0 0 / 14px 14px, linear-gradient(90deg, #c31a12, #e0332a 50%, #a8140f); background-position: 3px 3px, 0 0; box-shadow: inset 0 0 8px rgba(0, 0, 0, .35); }
+.rocket .stick { width: 9px; height: 150px; background: repeating-linear-gradient(180deg, #d81f26 0 14px, #fff 14px 28px, #2c4fb3 28px 42px); border-radius: 0 0 4px 4px; }
+.rocket .spark { position: absolute; top: 146px; left: 50%; width: 14px; height: 14px; margin-left: 6px; border-radius: 50%; background: radial-gradient(circle, #fff 0 25%, #ffd34d 55%, #ff8a1f); box-shadow: 0 0 14px 5px rgba(255, 190, 60, .85); animation: breathe 1s ease-in-out infinite; }
+.rocket .exhaust { position: absolute; bottom: -34px; left: 50%; width: 22px; height: 44px; margin-left: -11px; border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%; background: linear-gradient(#fff6b0, #ffb52e 55%, transparent); opacity: 0; filter: blur(1px); transform-origin: top; }
+.rocket.lit .exhaust { opacity: 1; animation: jet .08s linear infinite alternate; }
+.rocket.lit .spark { display: none; }
+@keyframes jet { from { transform: scaleY(.8); } to { transform: scaleY(1.35); } }
+
+/* the card */
+.card { width: min(100%, 360px); margin: auto; padding: 22px 22px 16px; border-radius: 30px; background: linear-gradient(165deg, #f9dc95 0%, #f8a948 48%, #f06a2d 100%); border: 3px solid rgba(255, 255, 255, .55); box-shadow: 0 0 0 2px rgba(120, 60, 20, .35), 0 24px 60px rgba(0, 0, 0, .55), 0 0 50px rgba(255, 170, 60, .25); text-align: center; animation: cardIn .9s cubic-bezier(.2, 1.2, .3, 1) both; display: flex; flex-direction: column; gap: 14px; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(70px) rotate(-5deg) scale(.9); } to { opacity: 1; transform: none; } }
+.card h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 2.1rem; line-height: 1.12; color: #b3191b; text-shadow: 0 2px 0 rgba(255, 255, 255, .45); text-wrap: balance; overflow-wrap: anywhere; }
+.card .sub { margin: 0; font-size: .98rem; color: var(--ink); }
+.pane { display: flex; flex-direction: column; gap: 14px; animation: sceneIn .6s ease both; }
+.pill { width: 100%; font: 400 1rem var(--f-body); text-align: center; color: #4a1a0a; background: #fff8dc; border: 2.5px solid #d7a064; border-radius: 999px; padding: 13px 18px; }
+.pill::placeholder { color: #9a7a66; }
+.pill:focus { outline: none; border-color: #b3191b; box-shadow: 0 0 0 3px rgba(179, 25, 27, .2); }
+.red-btn { font: 600 1rem var(--f-body); color: #fff; border: 0; border-radius: 999px; padding: 12px 26px; cursor: pointer; align-self: center; background: linear-gradient(#ea4a3a, #b3150f); box-shadow: 0 5px 0 #7a0e0a, 0 10px 16px rgba(0, 0, 0, .35); }
+.red-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #7a0e0a, 0 5px 10px rgba(0, 0, 0, .35); }
+.btnrow { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.err { margin: -6px 0 0; min-height: 1.2em; font-size: .85rem; color: #8a0f10; }
+.foot { margin: 0; font-size: .75rem; color: #7a3a1a; }
+
+/* envelope and letter */
+.env-stage { position: relative; min-height: 170px; perspective: 800px; display: grid; align-items: center; }
+.envelope { position: relative; width: 100%; height: 156px; border: 0; padding: 0; cursor: pointer; border-radius: 10px; background: linear-gradient(160deg, #f4d58d, #d9a24a); box-shadow: 0 14px 24px rgba(90, 30, 0, .4); transition: opacity .5s ease .45s, transform .7s ease .45s; }
+.envelope .flap { position: absolute; top: 0; left: 0; right: 0; height: 64%; background: linear-gradient(#df2f20, #a8140f); clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: top; transition: transform .6s ease; }
+.envelope .seal { position: absolute; left: 50%; top: 44%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem; background: radial-gradient(circle at 35% 30%, #b3231a, #7d0f0a); border: 3px solid #f2b83a; box-shadow: 0 0 22px rgba(255, 200, 60, .75); z-index: 2; transition: opacity .3s; }
+.envelope .hint { position: absolute; left: 0; right: 0; bottom: 10px; font-size: .78rem; color: #6a2410; }
+.envelope.open .flap { transform: rotateX(180deg); }
+.envelope.open .seal, .envelope.open .hint { opacity: 0; }
+.envelope.gone { opacity: 0; transform: translateY(46px); pointer-events: none; }
+.letter { position: absolute; inset: 0; margin: auto; height: fit-content; background: var(--cream); border: 2.5px solid var(--gold-deep); border-radius: 16px; padding: 16px 14px; color: #4a1a0a; font-size: .98rem; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; animation: letterIn .7s cubic-bezier(.2, 1.3, .4, 1) both; }
+.letter p { margin: 0; }
+.env-stage.read { min-height: 0; }
+.env-stage.read .envelope { position: absolute; }
+.env-stage.read .letter { position: relative; }
+@keyframes letterIn { from { opacity: 0; transform: scale(.7) translateY(20px); } to { opacity: 1; transform: none; } }
+#fb { display: none; font-size: .8rem; }
+#fb.on { display: block; }
+
+/* lanterns and toast */
+.lantern { position: fixed; z-index: 30; width: 96px; padding: 18px 10px; text-align: center; font: 600 .82rem/1.25 var(--f-body); color: #7a3a10; background: radial-gradient(circle at 50% 40%, #ffeab0, #ffb347 70%, #f08a24); border-radius: 20px; box-shadow: 0 0 42px 14px rgba(255, 170, 60, .65); overflow-wrap: anywhere; animation: floatUp 7s ease-in forwards; pointer-events: none; }
+@keyframes floatUp { 0% { transform: translate(-50%, 0) rotate(-4deg) scale(.6); opacity: 0; } 8% { opacity: 1; } 50% { transform: translate(calc(-50% + var(--dx)), -48vh) rotate(5deg) scale(1); } 100% { transform: translate(calc(-50% - var(--dx)), -112vh) rotate(-4deg) scale(1.05); opacity: 0; } }
+#toast { position: fixed; z-index: 35; left: 50%; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: rgba(30, 8, 12, .88); color: #fff; padding: 11px 22px; border-radius: 999px; font-size: .9rem; opacity: 0; transition: .35s; pointer-events: none; white-space: nowrap; }
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .strip i, .tap, .rocket .spark { animation: none; opacity: 1; }
+  .curtain { animation-duration: .01s; animation-delay: 0s; }
+  .niche.lit .flame { animation: none; }
+}
+</style>
+
+<div class="bg bg-red"></div>
+<div class="bg bg-amber"></div>
+<div class="bg bg-sky"></div>
+<canvas id="fxBack" aria-hidden="true"></canvas>
+<canvas id="fxTop" aria-hidden="true"></canvas>
+<div class="strip l" id="st-l" aria-hidden="true"></div>
+<div class="strip r" id="st-r" aria-hidden="true"></div>
+<div class="curtain l" id="cu-l" aria-hidden="true"></div>
+<div class="curtain r" id="cu-r" aria-hidden="true"></div>
+<button id="snd" type="button" aria-label="Sound on" aria-pressed="false">🔇</button>
+<div id="toast" role="status"></div>
+
+<main>
+  <section class="scene" id="s-splash">
+    <h1 class="shubh">शुभ<br>दीपावली</h1>
+    <div class="plate">रोशन<br>दिवाली</div>
+    <p class="tag">दीयों की रात आ गई</p>
+    <button class="gold-btn start" id="startBtn" type="button">Tap to begin</button>
+  </section>
+
+  <section class="scene" id="s-diya" hidden>
+    <div class="niche" id="niche" role="button" tabindex="0" aria-label="Tap the diya to light it">
+      <div class="rays"></div>
+      <div class="warm"></div>
+      <svg class="flower" viewBox="-50 -50 100 100" aria-hidden="true">
+        <g fill="none" stroke="#a5521f" stroke-width="3">
+          <ellipse cx="0" cy="-26" rx="13" ry="20"/><ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(72)"/><ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(144)"/><ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(216)"/><ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(288)"/><circle r="9"/>
+        </g>
+      </svg>
+      <div class="diya">
+        <svg viewBox="0 -70 200 160" aria-hidden="true">
+          <defs>
+            <linearGradient id="bowl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e08a3f"/><stop offset="1" stop-color="#9a4a18"/></linearGradient>
+            <linearGradient id="fl" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff8a1f"/><stop offset=".55" stop-color="#ffd24a"/><stop offset="1" stop-color="#fffbe6"/></linearGradient>
+          </defs>
+          <path d="M8 24 C22 74 70 88 100 88 C130 88 178 74 192 24 Z" fill="url(#bowl)"/>
+          <ellipse cx="100" cy="24" rx="92" ry="15" fill="#a24f1b"/>
+          <ellipse cx="100" cy="24" rx="92" ry="15" fill="none" stroke="#f2a65a" stroke-width="2"/>
+          <ellipse cx="100" cy="26" rx="70" ry="9" fill="#5a2208"/>
+          <rect x="96" y="12" width="8" height="12" rx="3" fill="#3a1608"/>
+          <g class="flame">
+            <path d="M100 16 C82 -6 92 -30 100 -64 C108 -30 118 -6 100 16Z" fill="url(#fl)"/>
+            <path d="M100 14 C93 2 96 -12 100 -26 C104 -12 107 2 100 14Z" fill="#fffdf0" opacity=".9"/>
+          </g>
+        </svg>
+        <span class="rose a">🌹</span><span class="rose b">🌹</span>
+      </div>
+    </div>
+    <p class="cap" id="diyaCap" aria-live="polite">Tap the diya to light it</p>
+    <button class="gold-btn" id="toRocket" type="button" hidden>Now, a rocket!</button>
+  </section>
+
+  <section class="scene" id="s-rocket" hidden>
+    <p class="cap" id="rocketCap">Light the fuse and watch it fly</p>
+    <button class="gold-btn" id="launchBtn" type="button">Tap to begin</button>
+    <button class="rocket" id="rocket" type="button" aria-label="Light the rocket">
+      <span class="nose"></span><span class="body"></span><span class="stick"></span><span class="spark"></span><span class="exhaust"></span>
+    </button>
+  </section>
+
+  <section class="scene" id="s-card" hidden>
+    <div class="card" id="card">
+      <h2 id="cardTitle">शुभ दीपावली</h2>
+
+      <div class="pane" id="paneForm">
+        <p class="sub">Who is this light for?</p>
+        <form id="form" class="pane" novalidate style="animation:none">
+          <input class="pill" id="toName" type="text" maxlength="24" autocomplete="off" placeholder="Their name" aria-label="Their name">
+          <input class="pill" id="fromName" type="text" maxlength="24" autocomplete="off" placeholder="Your name (optional)" aria-label="Your name (optional)">
+          <p class="err" id="err" role="alert"></p>
+          <button class="red-btn" type="submit">Make card + link</button>
+        </form>
+      </div>
+
+      <div class="pane" id="paneLetter" hidden>
+        <div class="env-stage" id="envStage">
+          <button class="envelope" id="env" type="button" aria-label="Open your letter">
+            <span class="flap"></span><span class="seal">🪔</span><span class="hint">Tap to open your letter</span>
+          </button>
+          <div class="letter" id="letter" hidden><p id="lText"></p></div>
+        </div>
+        <input class="pill" id="wish" type="text" maxlength="28" autocomplete="off" placeholder="Write a wish for the sky" aria-label="Wish for the sky">
+        <div class="btnrow">
+          <button class="red-btn" id="lanternBtn" type="button">Release lantern</button>
+          <button class="red-btn" id="shareBtn" type="button">Share</button>
+        </div>
+        <button class="red-btn" id="moreBtn" type="button">More fireworks</button>
+        <input class="pill" id="fb" type="text" readonly aria-label="Card link">
+        <p class="foot">Made with ✨ by saurbhh · Diwali 2026</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  var rnd = function (a, b) { return a + Math.random() * (b - a); };
+
+  /* ---------- card code in a plain #hash: "c" + hex of UTF-8 JSON ---------- */
+  function enc(o) {
+    var b = new TextEncoder().encode(JSON.stringify(o)), s = "c";
+    for (var i = 0; i < b.length; i++) s += (b[i] < 16 ? "0" : "") + b[i].toString(16);
+    return s;
+  }
+  function dec(h) {
+    try {
+      if (!/^c([0-9a-f]{2})+$/.test(h)) return null;
+      var a = new Uint8Array((h.length - 1) / 2);
+      for (var i = 0; i < a.length; i++) a[i] = parseInt(h.substr(1 + i * 2, 2), 16);
+      var o = JSON.parse(new TextDecoder().decode(a));
+      if (o && typeof o.t === "string" && o.t) return { to: o.t.slice(0, 24), from: String(o.f || "").slice(0, 24) };
+    } catch (e) {}
+    return null;
+  }
+  var data = dec(location.hash.slice(1));
+
+  /* ---------- sound (WebAudio, no files) ---------- */
+  var ac = null, on = false;
+  function initAudio() {
+    if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; } }
+    if (ac && ac.state === "suspended") ac.resume();
+  }
+  function tone(f, d, type, g, t0) {
+    if (!on || !ac) return;
+    var t = ac.currentTime + (t0 || 0), o = ac.createOscillator(), v = ac.createGain();
+    o.type = type || "sine"; o.frequency.value = f;
+    v.gain.setValueAtTime(0, t); v.gain.linearRampToValueAtTime(g || .15, t + .01); v.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(v); v.connect(ac.destination); o.start(t); o.stop(t + d + .05);
+  }
+  function noise(d, f0, f1, g, t0) {
+    if (!on || !ac) return;
+    var t = ac.currentTime + (t0 || 0), n = Math.floor(ac.sampleRate * d), buf = ac.createBuffer(1, n, ac.sampleRate), x = buf.getChannelData(0), i;
+    for (i = 0; i < n; i++) x[i] = Math.random() * 2 - 1;
+    var s = ac.createBufferSource(), fl = ac.createBiquadFilter(), v = ac.createGain();
+    s.buffer = buf; fl.type = "lowpass";
+    fl.frequency.setValueAtTime(f0, t); fl.frequency.exponentialRampToValueAtTime(Math.max(f1, 20), t + d);
+    v.gain.setValueAtTime(g, t); v.gain.exponentialRampToValueAtTime(.0001, t + d);
+    s.connect(fl); fl.connect(v); v.connect(ac.destination); s.start(t);
+  }
+  var sfx = {
+    tap: function () { tone(660, .12, "triangle", .1); },
+    light: function () { noise(.5, 400, 3000, .1); [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 1.6, "sine", .1, i * .12); }); },
+    fuse: function () { noise(.9, 6000, 3000, .06); },
+    launch: function () { noise(1.5, 300, 3500, .2); },
+    boom: function () { noise(.7, 900, 70, .4); tone(70, .5, "sine", .3); for (var i = 0; i < 6; i++) noise(.05, 7000, 3000, .07, .12 + i * .07); },
+    bell: function () { tone(880, 1.8, "sine", .1); tone(1320, 1.4, "sine", .05, .05); }
+  };
+  function setSound(v) {
+    on = v; $("snd").textContent = on ? "🔊" : "🔇"; $("snd").setAttribute("aria-pressed", String(on));
+    $("snd").setAttribute("aria-label", on ? "Sound on" : "Sound off");
+  }
+  $("snd").addEventListener("click", function (e) { e.stopPropagation(); initAudio(); setSound(!on); if (on) sfx.bell(); });
+
+  /* ---------- particle engine (fireworks, sparkles, rocket trail) ---------- */
+  var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  function Engine(cv, fade) { this.cv = cv; this.ctx = cv.getContext("2d"); this.fade = fade; this.p = []; }
+  Engine.prototype.size = function () { this.cv.width = W * DPR; this.cv.height = H * DPR; this.ctx.setTransform(DPR, 0, 0, DPR, 0, 0); };
+  Engine.prototype.step = function () {
+    var c = this.ctx, i, q;
+    c.globalCompositeOperation = "destination-out"; c.fillStyle = "rgba(0,0,0," + this.fade + ")"; c.fillRect(0, 0, W, H);
+    c.globalCompositeOperation = "lighter";
+    for (i = this.p.length - 1; i >= 0; i--) {
+      q = this.p[i]; q.x += q.vx; q.y += q.vy; q.vy += q.g; q.vx *= q.dr; q.vy *= q.dr; q.life -= q.dec;
+      if (q.life <= 0) { this.p.splice(i, 1); continue; }
+      var tw = q.tw ? (.55 + .45 * Math.sin(q.life * 40 + q.x)) : 1;
+      c.fillStyle = "hsla(" + q.h + "," + q.s + "%," + q.l + "%," + (q.life * tw) + ")";
+      c.beginPath(); c.arc(q.x, q.y, Math.max(q.r * (q.shrink ? q.life : 1), .4), 0, 6.283); c.fill();
+    }
+  };
+  var back = new Engine($("fxBack"), .24), top = new Engine($("fxTop"), .3);
+  function resize() {
+    W = window.innerWidth; H = window.innerHeight; back.size(); top.size();
+    ["l", "r"].forEach(function (s) {
+      var el = $("st-" + s); el.innerHTML = "";
+      for (var i = 0, n = Math.max(10, Math.floor(H / 32)); i < n; i++) {
+        var b = document.createElement("i"); b.style.animationDelay = (((i % 6) * .17) + (s === "r" ? .5 : 0)) + "s"; el.appendChild(b);
+      }
+    });
+  }
+  window.addEventListener("resize", resize);
+
+  var PALS = [[275, 190, 140], [32, 45, 18], [335, 350, 48], [200, 160, 320]];
+  function add(eng, x, y, vx, vy, h, o) {
+    o = o || {};
+    eng.p.push({ x: x, y: y, vx: vx, vy: vy, g: o.g == null ? .018 : o.g, dr: o.dr || .985, life: 1, dec: o.dec || rnd(.009, .016), h: h, s: o.s || 100, l: o.l || 62, r: o.r || 1.9, tw: o.tw, shrink: o.shrink });
+  }
+  function burst(eng, x, y, type, small) {
+    var pal = PALS[Math.floor(Math.random() * PALS.length)], sc = Math.max(.65, Math.min(W, H) / 640) * (small ? .45 : 1), i, k, a, t, hx, hy;
+    var hue = function () { return pal[Math.floor(Math.random() * pal.length)] + rnd(-12, 12); };
+    add(eng, x, y, 0, 0, pal[0], { r: 26 * sc, dec: .09, g: 0, l: 75, shrink: false });
+    if (type === "ring") {
+      for (i = 0; i < 80; i++) { a = i / 80 * 6.283; add(eng, x, y, Math.cos(a) * 3.8 * sc, Math.sin(a) * 3.8 * sc, hue(), { tw: 1 }); }
+    } else if (type === "spokes") {
+      for (k = 1; k <= 4; k++) for (i = 0; i < 40; i++) { a = i / 40 * 6.283 + k * .05; add(eng, x, y, Math.cos(a) * k * 1.05 * sc, Math.sin(a) * k * 1.05 * sc, hue(), { dr: .985, tw: 1, r: 1.6 }); }
+    } else if (type === "heart") {
+      for (i = 0; i < 90; i++) {
+        t = i / 90 * 6.283; hx = 16 * Math.pow(Math.sin(t), 3); hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        add(eng, x, y, hx * .2 * sc, hy * .2 * sc, pal[0] > 300 || pal[0] < 20 ? 345 : hue(), { dr: .975, g: .014, tw: 1 });
+      }
+    } else {
+      for (i = 0; i < (small ? 26 : 110); i++) { a = rnd(0, 6.283); var sp = rnd(.4, 4.2) * sc; add(eng, x, y, Math.cos(a) * sp, Math.sin(a) * sp, hue(), { tw: 1 }); }
+    }
+  }
+  var TYPES = ["sphere", "ring", "spokes", "heart", "ring", "spokes"];
+  function sky(n) {
+    for (var i = 0; i < (n || 1); i++) (function (i) {
+      setTimeout(function () { burst(back, rnd(W * .15, W * .85), rnd(H * .1, H * .4), TYPES[Math.floor(Math.random() * TYPES.length)]); sfx.boom(); }, i * 260);
+    })(i);
+  }
+  function loop() { back.step(); top.step(); requestAnimationFrame(loop); }
+
+  /* ---------- scenes ---------- */
+  var scenes = ["splash", "diya", "rocket", "card"], ambient = null;
+  function show(n, bg) {
+    scenes.forEach(function (s) { $("s-" + s).hidden = s !== n; });
+    document.body.setAttribute("data-bg", bg);
+    clearInterval(ambient);
+    if (n === "card") ambient = setInterval(function () { burst(back, rnd(W * .15, W * .85), rnd(H * .06, H * .3), TYPES[Math.floor(Math.random() * TYPES.length)]); }, 1900);
+  }
+
+  /* 1 splash */
+  var started = false;
+  $("s-splash").addEventListener("click", function () {
+    if (started) return; started = true;
+    initAudio(); setSound(true); sfx.tap();
+    show("diya", "amber");
+  });
+
+  /* 2 diya */
+  var lit = false;
+  function lightDiya() {
+    if (lit) return; lit = true;
+    var n = $("niche"); n.classList.add("lit"); n.removeAttribute("tabindex"); n.setAttribute("aria-label", "Diya lit");
+    var r = n.getBoundingClientRect(); sfx.light();
+    burst(top, r.left + r.width / 2, r.top + r.height * .68, "sphere", true);
+    var cap = $("diyaCap"); cap.textContent = "ज्योति जल उठी ✨"; cap.classList.add("hi");
+    setTimeout(function () { $("toRocket").hidden = false; }, 1200);
+  }
+  $("niche").addEventListener("click", lightDiya);
+  $("niche").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lightDiya(); } });
+  $("toRocket").addEventListener("click", function () { sfx.tap(); show("rocket", "sky"); });
+
+  /* 3 rocket */
+  var launched = false;
+  async function launch() {
+    if (launched) return; launched = true;
+    var rk = $("rocket"); $("launchBtn").hidden = true;
+    $("rocketCap").style.opacity = 0; sfx.fuse(); rk.classList.add("lit");
+    await wait(900); sfx.launch();
+    var r = rk.getBoundingClientRect(), x0 = r.left + r.width / 2, y = 0, v = 2, bottom = r.bottom;
+    await new Promise(function (done) {
+      (function f() {
+        v += .6; y -= v; rk.style.transform = "translate(-50%," + y + "px)";
+        for (var i = 0; i < 3; i++) add(back, x0 + rnd(-4, 4), bottom + y + 30, rnd(-.6, .6), rnd(.5, 2), rnd(28, 50), { g: .02, dec: .045, r: 2.2, l: 60 });
+        if (r.top + y < H * .26) return done();
+        requestAnimationFrame(f);
+      })();
+    });
+    rk.hidden = true;
+    burst(back, x0, H * .24, "spokes"); sfx.boom();
+    await wait(350); burst(back, W * .25, H * .2, "heart"); sfx.boom();
+    await wait(350); burst(back, W * .75, H * .3, "ring"); sfx.boom();
+    await wait(300); burst(back, W * .5, H * .12, "sphere"); sfx.boom();
+    await wait(1100);
+    show("card", "sky");
+    if (data) openLetterPane();
+  }
+  $("rocket").addEventListener("click", launch);
+  $("launchBtn").addEventListener("click", launch);
+
+  /* 4 card */
+  function openLetterPane() {
+    $("paneForm").hidden = true; $("paneLetter").hidden = false;
+    $("cardTitle").textContent = data.to + ", शुभ दीपावली";
+    var txt = "Dear " + data.to + ",\nMay every diya you light carry one worry away. Wishing you a year that is bright, sweet and full of sparkle.";
+    if (data.from) txt += "\n\n— " + data.from;
+    $("lText").textContent = txt;
+  }
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var to = $("toName").value.trim(), from = $("fromName").value.trim();
+    if (!to) { $("err").textContent = "Please add their name."; $("toName").focus(); return; }
+    data = { to: to, from: from }; $("err").textContent = "";
+    sfx.tap(); openLetterPane(); sky(3);
+  });
+
+  var opened = false;
+  $("env").addEventListener("click", async function () {
+    if (opened) return; opened = true;
+    var env = this; env.classList.add("open"); sfx.bell();
+    await wait(500); env.classList.add("gone");
+    await wait(550);
+    $("letter").hidden = false; $("envStage").classList.add("read"); env.hidden = true;
+    sky(3); [0, .18, .36].forEach(function (d, i) { tone([659, 784, 988][i], 1.6, "sine", .1, d); });
+  });
+
+  $("moreBtn").addEventListener("click", function () { sky(4); });
+
+  $("lanternBtn").addEventListener("click", function () {
+    var r = this.getBoundingClientRect(), el = document.createElement("div");
+    el.className = "lantern"; el.textContent = $("wish").value.trim() || "Happy Diwali";
+    el.style.left = (r.left + r.width / 2) + "px"; el.style.top = (r.top - 20) + "px"; el.style.setProperty("--dx", rnd(-40, 40) + "px");
+    document.body.appendChild(el); el.addEventListener("animationend", function () { el.remove(); });
+    sfx.bell();
+  });
+
+  function toast(t) { var el = $("toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove("on"); }, 2200); }
+  function shareUrl() { return location.href.split("#")[0] + "#" + enc({ t: data.to, f: data.from }); }
+  $("shareBtn").addEventListener("click", async function () {
+    var url = shareUrl(), text = data.to + ", wishing you a bright and sparkling Diwali 🪔";
+    if (navigator.share) {
+      try { await navigator.share({ title: "A Diwali light for you", text: text, url: url }); return; }
+      catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    var fb = $("fb"); fb.value = url;
+    function manual() { fb.classList.add("on"); fb.focus(); fb.select(); toast("Copy the link below"); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { toast("Link copied"); }, manual); else manual();
+  });
+
+  resize(); requestAnimationFrame(loop);
+  setTimeout(function () { document.body.classList.add("ready"); }, 300);
+  document.body.setAttribute("data-bg", "red");
+  setTimeout(function () { $("cu-l").remove(); $("cu-r").remove(); }, 2400);
+})();
+</script>
